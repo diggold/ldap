@@ -223,13 +223,13 @@ func (l *Conn) processMessages() {
 		close(l.chanConfirm)
 	}()
 
-	var messageID uint64 = 2147483647
+	var messageID uint64 = 0
 	for {
 		select {
 		case l.chanMessageID <- messageID:
 			messageID++
 			if messageID > uint64(^uint32(0)>>1) {
-				messageID = 1
+				messageID = 0
 			}
 		case messagePacket, ok := <-l.chanMessage:
 			if !ok {
