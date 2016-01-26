@@ -8,10 +8,11 @@ package ldap
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/marcsauter/asn1-ber"
 	"log"
 	"net"
 	"sync"
+
+	"github.com/marcsauter/asn1-ber"
 )
 
 const (
@@ -222,11 +223,14 @@ func (l *Conn) processMessages() {
 		close(l.chanConfirm)
 	}()
 
-	var messageID uint64 = 1
+	var messageID uint64 = 2147483647
 	for {
 		select {
 		case l.chanMessageID <- messageID:
 			messageID++
+			if messageID > uint64(^uint32(0)>>1) {
+				messageID = 1
+			}
 		case messagePacket, ok := <-l.chanMessage:
 			if !ok {
 				l.Debug.Printf("Shutting down - message channel is closed\n")
@@ -285,6 +289,7 @@ func (l *Conn) reader() {
 			return
 		}
 		addLDAPDescriptions(packet)
+		l.Debug.Printf("RAW MessageID : %#v", packet.Children[0].Value)
 		message := &messagePacket{
 			Op:        MessageResponse,
 			MessageID: packet.Children[0].Value.(uint64),
@@ -293,6 +298,5 @@ func (l *Conn) reader() {
 		if !l.sendProcessMessage(message) {
 			return
 		}
-
 	}
 }

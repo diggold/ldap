@@ -30,8 +30,9 @@ package ldap
 
 import (
 	"errors"
-	"github.com/marcsauter/asn1-ber"
 	"log"
+
+	"github.com/marcsauter/asn1-ber"
 )
 
 const (
@@ -101,9 +102,7 @@ func (m ModifyRequest) encode() *ber.Packet {
 	return request
 }
 
-func NewModifyRequest(
-	dn string,
-) *ModifyRequest {
+func NewModifyRequest(dn string) *ModifyRequest {
 	return &ModifyRequest{
 		dn: dn,
 	}
